@@ -1,12 +1,10 @@
-import traceback
 import inspect
 import time
 import threading
 import functools
-
 from zmq.sugar.poll import select
-
-from rpc.channel import ChannelMultiplexer
+from channel import ChannelMultiplexer
+from asynchttp import AsyncHTTPClients
 
 
 class IOLoop():
@@ -47,6 +45,7 @@ class IOLoop():
         self._callbacks = []
         self._callback_lock = threading.Lock()
         self._servers = []
+        self.async_http_clients = AsyncHTTPClients()
 
     def add_server(self, server):
         self._servers.append(server)
@@ -66,11 +65,8 @@ class IOLoop():
 
     def run(self):
         IOLoop._current.instance = self
-        sockets = []
-        for server in self._servers:
-            sockets.append(server.socket)
         while True:
-            poll_timeout = 1
+            poll_timeout = 0.1
             with self._callback_lock:
                 callbacks = self._callbacks
                 self._callbacks = []
@@ -80,11 +76,24 @@ class IOLoop():
             if self._callbacks:
                 poll_timeout = 0
 
+            sockets = []
+            for server in self._servers:
+                sockets.append(server.socket)
+
+            for socket in self.async_http_clients.get_fdset()[0]:
+                sockets.append(socket)
+
             if len(sockets) > 0:
-                rwx_list = select(sockets, sockets, sockets, poll_timeout)
+                rwx_list = select(sockets, [], sockets, poll_timeout)
                 for server in self._servers:
                     if server.socket in rwx_list[0]:
                         server.run()
+                    elif server.socket in rwx_list[2]:
+                        print 'Error: ZMQ socket error.'  # TODO: Log this error?
+                    else:
+                        pass
+
+                self.async_http_clients.run_once()
 
                 for server in self._servers:
                     server.on_idle()
@@ -194,8 +203,7 @@ class Server():
             else:
                 try:
                     if channel.rpc_handler is None:
-                        channel.rpc_handler = self._rpc_handler()
-                        channel.rpc_handler.channel = channel
+                        channel.rpc_handler = self._rpc_handler(self, channel)
                     rpc_handler = channel.rpc_handler
                     if event.name in self.builtin_methods:
                         method = self._rpc_methods.get(event.name, None)
@@ -207,9 +215,7 @@ class Server():
                         rpc_handler.method_to_execute = method
                         rpc_handler._execute_method(*event.args)
                 except Exception as e:
-                    args = ('ERR', str(e), traceback.format_exc())
-                    reply_event = channel.create_event('ERR', args, {})
-                    channel.emit_event(reply_event)
+                    channel.finish_exception(str(e))
                     channel.close()
 
     def on_idle(self):

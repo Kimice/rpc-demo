@@ -1,8 +1,7 @@
+import traceback
 import time
-
 import zmq
-
-from rpc.events import Events
+from events import Events
 
 
 class ChannelMultiplexer():
@@ -92,6 +91,10 @@ class Channel():
 
     def finish(self, result):
         self.emit('OK', (result,), {})
+
+    def finish_exception(self, exception):
+        args = ('ERR', str(exception), traceback.format_exc())
+        self.emit('ERR', args, {})
 
     def on_idle(self):
         if self._remote_last_hb is not None:

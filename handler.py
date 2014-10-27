@@ -26,11 +26,13 @@ class RespStream():
 
 
 class Handler(object):
-    def __init__(self):
-        self.channel = None
+    def __init__(self, server, channel):
+        self.server = server
+        self.channel = channel
         self.method_to_execute = None
         self._auto_finish = True
         self._result = None
+        self._error = None
 
     def _when_complete(self, result, callback):
         try:
@@ -49,8 +51,17 @@ class Handler(object):
 
     def finish(self):
         if self.channel:
-            if isinstance(self._result, RespStream):
-                self.channel.finish_stream(self._result)
+            if self._error:
+                self.channel.finish(self._error)
             else:
-                self.channel.finish(self._result)
+                if isinstance(self._result, RespStream):
+                    self.channel.finish_steam(self._result)
+                else:
+                    self.channel.finish(self._result)
             self.channel.close()
+
+    def set_result(self, result):
+        self._result = result
+
+    def set_error(self, error):
+        self._error = error

@@ -1,9 +1,7 @@
-import errno
-
 import msgpack
 import zmq as zmq
-
-from rpc.msgidgenerator import MsgIdGenerator
+import errno
+from msgidgenerator import MsgIdGenerator
 
 
 class RpcEvent(object):
