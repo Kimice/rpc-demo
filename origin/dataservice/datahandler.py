@@ -1,6 +1,9 @@
 import pymongo
-from common.message import *
-from dataerror import *
+from common.constants import (
+    DEFAULT_LIBRARY,
+    DEFAULT_COLLECTION
+)
+from dataerror import DataServiceError
 
 
 def singleton(cls):

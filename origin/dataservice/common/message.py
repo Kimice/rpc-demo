@@ -1,6 +1,11 @@
 import re
 import json
-from constants import *
+from constants import (
+    METHOD_REGISTER,
+    METHOD_UNREGISTER,
+    METHOD_QUERY,
+    METHOD_UPDATE
+)
 
 
 class Message(object):
