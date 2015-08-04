@@ -8,7 +8,7 @@ def async(method):
         self._auto_finish = False
         result = method(self, *args, **kwargs)
         return result
-    wrapper._rpc_args = inspect.getargspec(method)
+    wrapper.rpc_args = inspect.getargspec(method)
     return wrapper
 
 
@@ -16,11 +16,11 @@ def stream(method):
     @functools.wraps(method)
     def wrapper(self, *args, **kwargs):
         return RespStream(method(self, *args, **kwargs))
-    wrapper._rpc_args = inspect.getargspec(method)
+    wrapper.rpc_args = inspect.getargspec(method)
     return wrapper
 
 
-class RespStream():
+class RespStream(object):
     def __init__(self, result):
         self.result = result
 
@@ -41,7 +41,7 @@ class Handler(object):
         except:
             pass
 
-    def _execute_method(self, *args, **kwargs):
+    def execute_method(self, *args, **kwargs):
         self._when_complete(self.method_to_execute(*args, **kwargs),
                             self._execute_finish)
 

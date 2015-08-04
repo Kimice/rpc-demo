@@ -7,12 +7,12 @@ from msgidgenerator import MsgIdGenerator
 class RpcEvent(object):
     __slots__ = ['_name', '_args', '_header']
 
-    def __init__(self, name, args, msgid, header=None):
+    def __init__(self, name, args, msg_id, header=None):
         self._name = name
         self._args = args
         if header is None:
             self._header = {
-                'message_id': msgid,
+                'message_id': msg_id,
                 'v': 3
             }
         else:
@@ -93,7 +93,7 @@ class Events(object):
         self._socket.bind(endpoint)
 
     def create_event(self, name, args, xheader={}):
-        event = RpcEvent(name, args, msgid=self._msgid_generator.new_msgid())
+        event = RpcEvent(name, args, msg_id=self._msgid_generator.new_msgid())
         for k, v in xheader.items():
             if k == 'zmqid':
                 continue

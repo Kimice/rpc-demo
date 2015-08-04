@@ -1,7 +1,7 @@
 import pycurl
 
 
-class AsyncHTTPResult():
+class AsyncHTTPResult(object):
     OPERATION_SUCCEED = 0
     GENERAL_FAILURE = -1
 
@@ -9,13 +9,13 @@ class AsyncHTTPResult():
         self.code = code
 
 
-class AsyncHTTPClients():
+class AsyncHTTPClients(object):
     def __init__(self):
         self._curl_multi = pycurl.CurlMulti()
         self._handle_curls = []
         self._wait_curls = []
 
-    def get_fdset(self):
+    def get_fd_set(self):
         return self._curl_multi.fdset()
 
     def add(self, curl):

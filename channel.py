@@ -4,7 +4,7 @@ import zmq
 from events import Events
 
 
-class ChannelMultiplexer():
+class ChannelMultiplexer(object):
     def __init__(self, zmq_socket_type=zmq.ROUTER):
         self._events = Events(zmq_socket_type)
         self._channels = {}
@@ -42,7 +42,7 @@ class ChannelMultiplexer():
         return Channel(self, freq, from_event)
 
 
-class Channel():
+class Channel(object):
     def __init__(self, multiplexer, freq=5, from_event=None):
         self._multiplexer = multiplexer
         self._channel_id = None

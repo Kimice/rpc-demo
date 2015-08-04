@@ -7,7 +7,7 @@ from channel import ChannelMultiplexer
 from asynchttp import AsyncHTTPClients
 
 
-class IOLoop():
+class IOLoop(object):
     _instance_lock = threading.Lock()
     _current = threading.local()
 
@@ -80,7 +80,7 @@ class IOLoop():
             for server in self._servers:
                 sockets.append(server.socket)
 
-            for socket in self.async_http_clients.get_fdset()[0]:
+            for socket in self.async_http_clients.get_fd_set()[0]:
                 sockets.append(socket)
 
             if len(sockets) > 0:
@@ -99,7 +99,7 @@ class IOLoop():
                     server.on_idle()
 
 
-class Server():
+class Server(object):
     def __init__(self, rpc_handler):
         self.builtin_methods = ['_rpc_inspect',
                                 '_rpc_name',
@@ -128,7 +128,8 @@ class Server():
                        and getattr(methods, k) not in server_methods
                     )
 
-    def _format_args_spec(self, args_spec, r=None):
+    @staticmethod
+    def _format_args_spec(args_spec, r=None):
         if args_spec:
             r = [dict(name=name) for name in args_spec[0]]
             default_values = args_spec[3]
@@ -140,21 +141,23 @@ class Server():
     def _rpc_inspect(self):
         methods = dict((m, f) for m, f in self._rpc_methods.items()
                        if not m.startswith('_'))
-        detailled_methods = dict((m,
-            dict(args=self._format_args_spec(self._rpc_args(f)),
+        detailed_methods = dict((m,
+            dict(args=self._format_args_spec(self.rpc_args(f)),
                  doc=self._rpc_doc(f)))
             for (m, f) in methods.items())
         return {'name': self._rpc_name,
-                'methods': detailled_methods}
+                'methods': detailed_methods}
 
-    def _rpc_doc(self, method):
+    @staticmethod
+    def _rpc_doc(method):
         if method.__doc__ is None:
             return None
         return inspect.cleandoc(method.__doc__)
 
-    def _rpc_args(self, method):
+    @staticmethod
+    def rpc_args(method):
         try:
-            args_spec = method._rpc_args
+            args_spec = method.rpc_args
         except AttributeError:
             try:
                 args_spec = inspect.getargspec(method)
@@ -174,7 +177,7 @@ class Server():
         self._rpc_methods['_rpc_help'] = \
             lambda m: self._rpc_doc(self._rpc_methods[m])
         self._rpc_methods['_rpc_args'] = \
-            lambda m: self._format_args_spec(self._rpc_args(self._rpc_methods[m]))
+            lambda m: self._format_args_spec(self.rpc_args(self._rpc_methods[m]))
 
     @property
     def socket(self):
@@ -213,7 +216,7 @@ class Server():
                         raise NameError(event.name)
                     else:
                         rpc_handler.method_to_execute = method
-                        rpc_handler._execute_method(*event.args)
+                        rpc_handler.execute_method(*event.args)
                 except Exception as e:
                     channel.finish_exception(str(e))
                     channel.close()

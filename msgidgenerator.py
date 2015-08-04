@@ -2,7 +2,7 @@ import uuid
 import random
 
 
-class MsgIdGenerator():
+class MsgIdGenerator(object):
     _instance = None
 
     def __init__(self):
