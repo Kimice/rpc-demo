@@ -7,7 +7,7 @@ CONTEXT_TYPE_INCORRECT = 3
 SUCCESS = 0
 
 
-class Apps():
+class Apps(object):
     def __init__(self):
         self.select_ids = []
         self.update_ids = []
@@ -123,7 +123,7 @@ class Apps():
         return SUCCESS
 
 
-class Context():
+class Context(object):
     ACTION_TYPES = ('select', 'update')
 
     def __init__(self, app_id, action):
@@ -161,10 +161,9 @@ class Context():
             return True
         else:
             pass
-        #self.__mongodb.close()
 
 
-class Data():
+class Data(object):
     def __init__(self):
         pass
 

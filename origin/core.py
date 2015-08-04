@@ -4,7 +4,7 @@ import traceback
 from zmq.eventloop.zmqstream import ZMQStream
 from zmq.eventloop.ioloop import ZMQIOLoop
 
-from data import *
+from data import Apps
 
 
 class Server(object):

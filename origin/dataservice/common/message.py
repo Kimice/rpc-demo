@@ -62,15 +62,16 @@ class QueryRequest(Request):
 
 
 class RequestFactory(object):
-
-    def loads(self, document):
+    @staticmethod
+    def loads(document):
         document = json.loads(document)
         method = document['method']
         request = globals()[method+'Request']()
         request.__dict__ = document
         return request
 
-    def dumps(self, request):
+    @staticmethod
+    def dumps(request):
         return json.dumps(request.__dict__)
 
 
@@ -114,12 +115,13 @@ def dict2object(d):
 
 
 class ResponseFactory(object):
-
-    def loads(self, document):
+    @staticmethod
+    def loads(document):
         document = json.loads(document, object_hook=dict2object)
         response = Response()
         response.__dict__ = document
         return response
 
-    def dumps(self, response):
+    @staticmethod
+    def dumps(response):
         return json.dumps(response.__dict__, default=object2dict)

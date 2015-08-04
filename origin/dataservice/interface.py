@@ -16,8 +16,8 @@ from zmq.eventloop.ioloop import ZMQIOLoop
 
 class DataService(object):
 
-    def __init__(self, datahandler):
-        self.datahandler = datahandler()
+    def __init__(self, data_handler):
+        self.data_handler = data_handler()
 
     def bind(self, interface):
         context = zmq.Context()
@@ -30,7 +30,7 @@ class DataService(object):
         request = RequestFactory().loads(message[0])
         response = Response()
         try:
-            handler = getattr(self.datahandler, str.lower(request.method.encode('utf8')))
+            handler = getattr(self.data_handler, str.lower(request.method.encode('utf8')))
             response.result = handler(*request.params)
         except Exception as e:
             response.error = ERROR_EXCEPTION

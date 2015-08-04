@@ -1,4 +1,4 @@
-class MyError(Exception):
+class RPCError(Exception):
     def __init__(self, value):
         Exception.__init__(self, value)
         self.value = value
@@ -7,9 +7,9 @@ class MyError(Exception):
         return self.value
 
 
-class DataServiceError(MyError):
+class DataServiceError(RPCError):
     pass
 
 
-class TimeoutError(MyError):
+class TimeoutError(RPCError):
     pass

@@ -2,10 +2,17 @@ import datetime
 import tornado.gen
 from tornado.concurrent import Future
 from zmq.eventloop.ioloop import ZMQIOLoop
-from common.message import *
-from common.constants import *
-from streampool import *
-from dataerror import *
+from common.message import (
+    RegisterRequest,
+    UnRegisterRequest,
+    UpdateRequest,
+    QueryRequest,
+    ResponseFactory,
+    RequestFactory
+)
+from common.constants import ERROR_EXCEPTION
+from streampool import StreamPool
+from dataerror import TimeoutError
 
 
 def singleton(cls):

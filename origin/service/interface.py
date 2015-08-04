@@ -1,7 +1,12 @@
 import argparse
 import tornado.web
 
-from apphandler import *
+from apphandler import (
+    RegisterHandler,
+    UnRegisterHandler,
+    UpdateHandler,
+    QueryHandler
+)
 from common.constants import *
 from zmq.eventloop import ioloop
 

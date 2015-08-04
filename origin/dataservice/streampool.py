@@ -21,7 +21,8 @@ class StreamPool(object):
         stream = self.pool.get()
         return stream
 
-    def create_stream(self, address):
+    @staticmethod
+    def create_stream(address):
         context = zmq.Context()
         socket = context.socket(zmq.REQ)
         socket.connect(address)
@@ -30,3 +31,4 @@ class StreamPool(object):
 
 if __name__ == "__main__":
     StreamPool()
+
